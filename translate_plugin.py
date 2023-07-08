@@ -11,6 +11,8 @@ translator = Translator()
 
 parser = argparse.ArgumentParser()
  
+copy_word = ""
+copy_key_name = ""
 parser.add_argument("-en", "--en_output", help = "Save Output to a file in json format in english ")
 parser.add_argument("-es", "--es_output", help = "Save Output to a file in json format in spanish")
 parser.add_argument("-k", "--key", help = "json key name for inserting the word ")
@@ -33,7 +35,7 @@ def translate(english_word):
             en_data['translation'][new_key][key_name] = english_word
         else:
             en_data['translation'][key_name] = english_word
-        json.dump(en_data, en_file,ensure_ascii=False)
+        json.dump(en_data, en_file,ensure_ascii=False,indent = 1)
 
     json_file_es = open(args.es_output, 'r')
     es_data = json.load(json_file_es)
@@ -46,7 +48,7 @@ def translate(english_word):
             es_data['translation'][new_key][key_name] = translation.text
         else:
             es_data['translation'][key_name] = translation.text
-        json.dump(es_data, es_file, ensure_ascii=False)
+        json.dump(es_data, es_file, ensure_ascii=False,indent = 1)
     print("english word: " + english_word, "spanish word: " + translation.text)
     print(key_name)
     clipboard.copy(key_name)
@@ -55,15 +57,21 @@ if __name__ == "__main__":
     if args.en_output:
         if os.path.exists(args.en_output) == False:
             with open(args.en_output, 'w') as en_file:
-                json.dump({'translation':{}}, en_file)
+                json.dump({'translation':{}}, en_file,indent = 1)
     if args.es_output:
         if os.path.exists(args.es_output) == False:
             with open(args.es_output, 'w') as es_file:
-                json.dump({'translation':{}}, es_file)
+                json.dump({'translation':{}}, es_file,indent = 1)
+    
     while True:
-        english_word = input("Enter a word to translate: ")
-        if english_word == "exit()":
+        if copy_word == "exit()":
             print("Exiting...")
-            break
-        translate(english_word)
+        if copy_word != clipboard.paste() and copy_key_name != clipboard.paste():
+            copy_word = clipboard.paste()
+            translate(copy_word)
+            # english_word = input("Enter a word to translate: ")
+            # if english_word == "exit()":
+            #     print("Exiting...")
+            #     break
+            # translate(english_word)
 
